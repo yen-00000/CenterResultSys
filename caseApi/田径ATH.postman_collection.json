@@ -1,0 +1,1233 @@
+{
+	"info": {
+		"_postman_id": "bbcdb64f-d2e7-408b-a67b-53f7a171ef83",
+		"name": "田径ATH",
+		"description": "田径接口测试套",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "登录重置token",
+			"item": [
+				{
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "2ab483d4-6a9d-4e92-84a1-70bb7ff8902f",
+								"exec": [
+									"if (responseCode.code === 200 && responseBody.has(\"token\")) {\r",
+									"    //将返回的内容转为 json 格式，并且取到 token 内容，添加到环境变量中\r",
+									"    var jsonData = JSON.parse(responseBody);\r",
+									"    //access_token的取值方式视具体的 json 数据结构而定\r",
+									"    postman.setEnvironmentVariable(\"accessToken\", jsonData.data.token);\r",
+									"\r",
+									"} else {\r",
+									"    tests[\"login\"] = false;\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "1b9c2d32-4e76-410c-bde3-9bc33c8799ff",
+								"exec": [
+									"var str = pm.environment.get(\"password\");\r",
+									"var strmd5 = CryptoJS.MD5(str).toString();\r",
+									"pm.variables.set(\"passwordMd5\", strmd5);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"username\":\"{{username}}\",\n \"password\":\"{{passwordMd5}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ipAddr}}/dc/auth/login",
+							"host": [
+								"{{ipAddr}}"
+							],
+							"path": [
+								"dc",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "genToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "39e888b1-a9c7-4527-b7df-a89bc4acbb49",
+								"exec": [
+									"if (responseCode.code === 200 && responseBody.has(\"data\")) {\r",
+									"    //将返回的内容转为 json 格式，并且取到 access_token 内容，添加到环境变量中\r",
+									"    var jsonData = JSON.parse(responseBody);\r",
+									"    //access_token的取值方式视具体的 json 数据结构而定\r",
+									"    postman.setEnvironmentVariable(\"token\", jsonData.data);\r",
+									"\r",
+									"} else {\r",
+									"    tests[\"genODFToken\"] = false;\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json;charset=UTF-8"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{ipAddr}}/dc/biz/bizVenueMsg/ODFClient/genToken",
+							"host": [
+								"{{ipAddr}}"
+							],
+							"path": [
+								"dc",
+								"biz",
+								"bizVenueMsg",
+								"ODFClient",
+								"genToken"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "ATH接口",
+			"item": [
+				{
+					"name": "testDemo",
+					"item": [
+						{
+							"name": "PARTIC",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!--参赛者个人信息-->\n<OdfBody CompetitionCode=\"JINJIANG2020\"\n         DocumentCode=\"ATH-------------------------------\"\n         DocumentType=\"DT_PARTIC\"\n         Version=\"1\"\n         FeedFlag=\"P\"\n         Date=\"2020-05-07\"\n         Time=\"104823001\"\n         LogicalDate=\"2020-05-07\"\n         Source=\"ATH_OVR\">\n  <Competition>\n    <!--个人信息-->\n <Participant Code=\"ATHUAA0101\" Status=\"ACTIVE\" GivenName=\"AA0101\" FamilyName=\"U\" Gender=\"W\"\n     Organisation=\"USA\" BirthDate=\"1993-09-20\" Height=\"173\" Weight=\"63\"\n                 MainFunctionId=\"AA01\" ModificationIndicator=\"N\">\n      <Discipline Code=\"ATH-------------------------------\">\n        <!--报项-->\n        <RegisteredEvent Event=\"ATHW100M--------------------------\">\n        </RegisteredEvent>\n      </Discipline>\n    </Participant>\n<Participant Code=\"ATHUAA0102\" Status=\"ACTIVE\" GivenName=\"AA0102\" FamilyName=\"U\" Gender=\"W\"\n     Organisation=\"USA\" BirthDate=\"1993-09-20\" Height=\"173\" Weight=\"63\"\n                 MainFunctionId=\"AA01\" ModificationIndicator=\"N\">\n      <Discipline Code=\"ATH-------------------------------\">\n        <!--报项-->\n        <RegisteredEvent Event=\"ATHW100M--------------------------\">\n        </RegisteredEvent>\n      </Discipline>\n    </Participant>\n<Participant Code=\"ATHUAA0103\" Status=\"ACTIVE\" GivenName=\"AA0103\" FamilyName=\"U\" Gender=\"W\"\n     Organisation=\"USA\" BirthDate=\"1993-09-20\" Height=\"173\" Weight=\"63\"\n                 MainFunctionId=\"AA01\" ModificationIndicator=\"N\">\n      <Discipline Code=\"ATH-------------------------------\">\n        <!--报项-->\n        <RegisteredEvent Event=\"ATHW100M--------------------------\">\n        </RegisteredEvent>\n      </Discipline>\n    </Participant>\n<Participant Code=\"ATHUAA0104\" Status=\"ACTIVE\" GivenName=\"AA0104\" FamilyName=\"U\" Gender=\"W\"\n     Organisation=\"USA\" BirthDate=\"1993-09-20\" Height=\"173\" Weight=\"63\"\n                 MainFunctionId=\"AA01\" ModificationIndicator=\"N\">\n      <Discipline Code=\"ATH-------------------------------\">\n        <!--报项-->\n        <RegisteredEvent Event=\"ATHW100M--------------------------\">\n        </RegisteredEvent>\n      </Discipline>\n    </Participant>\n\t\n\t   <!--个人信息-->\n <Participant Code=\"ATHWAA0101\" Status=\"ACTIVE\" GivenName=\"AA0101\" FamilyName=\"C\" Gender=\"W\"\n     Organisation=\"CHN\" BirthDate=\"1993-09-20\" Height=\"173\" Weight=\"63\"\n                 MainFunctionId=\"AA01\" ModificationIndicator=\"N\">\n      <Discipline Code=\"ATH-------------------------------\">\n        <!--报项-->\n        <RegisteredEvent Event=\"ATHW100M--------------------------\">\n        </RegisteredEvent>\n      </Discipline>\n    </Participant>\n<Participant Code=\"ATHWAA0102\" Status=\"ACTIVE\" GivenName=\"AA0102\" FamilyName=\"C\" Gender=\"W\"\n     Organisation=\"CHN\" BirthDate=\"1993-09-20\" Height=\"173\" Weight=\"63\"\n                 MainFunctionId=\"AA01\" ModificationIndicator=\"N\">\n      <Discipline Code=\"ATH-------------------------------\">\n        <!--报项-->\n        <RegisteredEvent Event=\"ATHW100M--------------------------\">\n        </RegisteredEvent>\n      </Discipline>\n    </Participant>\n<Participant Code=\"ATHWAA0103\" Status=\"ACTIVE\" GivenName=\"AA0103\" FamilyName=\"C\" Gender=\"W\"\n     Organisation=\"CHN\" BirthDate=\"1993-09-20\" Height=\"173\" Weight=\"63\"\n                 MainFunctionId=\"AA01\" ModificationIndicator=\"N\">\n      <Discipline Code=\"ATH-------------------------------\">\n        <!--报项-->\n        <RegisteredEvent Event=\"ATHW100M--------------------------\">\n        </RegisteredEvent>\n      </Discipline>\n    </Participant>\n<Participant Code=\"ATHWAA0104\" Status=\"ACTIVE\" GivenName=\"AA0104\" FamilyName=\"C\" Gender=\"W\"\n     Organisation=\"CHN\" BirthDate=\"1993-09-20\" Height=\"173\" Weight=\"63\"\n                 MainFunctionId=\"AA01\" ModificationIndicator=\"N\">\n      <Discipline Code=\"ATH-------------------------------\">\n        <!--报项-->\n        <RegisteredEvent Event=\"ATHW100M--------------------------\">\n        </RegisteredEvent>\n      </Discipline>\n    </Participant>\n  </Competition>\n</OdfBody>",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PARTIC_TEAMS",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!--团队参赛信息-->\n<OdfBody CompetitionCode=\"JINJIANG2020\"\n         DocumentCode=\"ATH-------------------------------\"\n         DocumentType=\"DT_PARTIC_TEAMS\"\n         Version=\"1\"\n         FeedFlag=\"P\"\n         Date=\"2020-05-07\"\n         Time=\"104823001\"\n         LogicalDate=\"2020-05-07\"\n         Source=\"ATH_OVR\">>\n  <Competition>\n    <!--队伍信息-->\n    <Team Code=\"ATHWTEAM01\"\n          Organisation=\"CHN\"\n          Number=\"1\"\n          Name=\"田径中国队01\"\n          TVTeamName=\"test01\"\n          Gender=\"W\"\n          ModificationIndicator=\"N\">\n      <Composition>\n        <!--运动员信息-->\n\n        <Athlete Code=\"ATHWAA0101\" Order=\"1\"/>\n        <Athlete Code=\"ATHWAA0102\" Order=\"2\"/>\n        <Athlete Code=\"ATHWAA0103\" Order=\"3\"/>\n        <Athlete Code=\"ATHWAA0104\" Order=\"4\"/>\n      </Composition>\n      <Discipline Code=\"ATH-------------------------------\">\n\t\t<RegisteredEvent Event=\"ATHW4X100M------------------------\">\n        </RegisteredEvent>\n      </Discipline>\n   </Team>\n   \n   <!--队伍信息-->\n    <Team Code=\"ATHUTEAM01\"\n          Organisation=\"USA\"\n          Number=\"1\"\n          Name=\"田径美国队01\"\n          TVTeamName=\"test01\"\n          Gender=\"W\"\n          ModificationIndicator=\"N\">\n      <Composition>\n        <!--运动员信息-->\n        <Athlete Code=\"ATHUAA0101\" Order=\"1\"/>\n        <Athlete Code=\"ATHUAA0102\" Order=\"2\"/>\n        <Athlete Code=\"ATHUAA0103\" Order=\"2\"/>\n        <Athlete Code=\"ATHUAA0104\" Order=\"2\"/>\n      </Composition>\n      <Discipline Code=\"ATH-------------------------------\">\n\t\t<RegisteredEvent Event=\"ATHW4X100M------------------------\">\n        </RegisteredEvent>\n      </Discipline>\n   </Team>\n  </Competition>\n</OdfBody>",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "SCHEDULE",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "1dd3ca7e-fe23-474a-a1d8-5b4b8239c33a",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "43d5bd97-ead2-4248-aacb-57f5b34d28c0",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<!--赛程编排-->\n<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATH-------------------------------\" DocumentType=\"DT_SCHEDULE\" ResultStatus=\"OFFICIAL\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-04-23\" Time=\"15:42:23\" LogicalDate=\"2020-04-23\" Source=\"ATH_OVR\">\n\t<Competition>\n\t\t<Unit Code=\"ATHW4X100M------------------------\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-24T08:00:00\" EndDate=\"2020-04-25T12:00:00\" Order=\"1\" Medal=\"0\" Venue=\"ZHIXIAO\" Location=\"ZHIXIAO\" SessionCode=\"ATH-MN\" ModificationIndicator=\"N\">\n            <StartText Language=\"CHI\" Value=\"测试文本\"/>\n            <ItemName Language=\"CHI\" Value=\"女子 4 x 100米接力\"/>\n\t\t\t<VenueDescription VenueName=\"晋江职校体育馆\" LocationName=\"职校\"/>\n        </Unit>\n\t\t\n\t\t<Unit Code=\"ATHW4X100M------------RND1--------\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-24T08:00:00\" EndDate=\"2020-04-24T12:30:30\" Order=\"1\" Medal=\"0\" Venue=\"ZHIXIAO\" Location=\"ZHIXIAO\" SessionCode=\"ATH-MN\" ModificationIndicator=\"N\">\n            <StartText Language=\"CHI\" Value=\"测试文本\"/>\n            <ItemName Language=\"CHI\" Value=\"女子 4 x 100米接力第一轮\"/>\n\t\t\t<VenueDescription VenueName=\"晋江职校体育馆\" LocationName=\"职校\"/>\n        </Unit>\n\t\t\n        <Unit Code=\"ATHW4X100M------------RND1000100--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-24T08:00:00\" EndDate=\"2020-04-24T09:00:00\" Order=\"1\" Medal=\"0\" Venue=\"ZHIXIAO\" Location=\"ZHIXIAO\" SessionCode=\"ATH-MN\" ModificationIndicator=\"N\">\n            <StartText Language=\"CHI\" Value=\"测试文本\"/>\n            <ItemName Language=\"CHI\" Value=\"女子 4 x 100米接力第一轮第一组\"/>\n\t\t\t<VenueDescription VenueName=\"晋江职校体育馆\" LocationName=\"职校\"/>\n        </Unit>\n\t\t<Unit Code=\"ATHW4X100M------------RND1000200--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-24T09:00:00\" EndDate=\"2020-04-24T10:00:00\" Order=\"1\" Medal=\"0\" Venue=\"ZHIXIAO\" Location=\"ZHIXIAO\" SessionCode=\"ATH-MN\" ModificationIndicator=\"N\">\n            <StartText Language=\"CHI\" Value=\"测试文本\"/>\n            <ItemName Language=\"CHI\" Value=\"女子 4 x 100米接力第一轮第二组\"/>\n\t\t\t<VenueDescription VenueName=\"晋江职校体育馆\" LocationName=\"职校\"/>\n        </Unit>\n\t\t<Unit Code=\"ATHW4X100M------------RND1000300--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-24T10:00:00\" EndDate=\"2020-04-24T11:00:00\" Order=\"1\" Medal=\"0\" Venue=\"ZHIXIAO\" Location=\"ZHIXIAO\" SessionCode=\"ATH-MN\" ModificationIndicator=\"N\">\n            <StartText Language=\"CHI\" Value=\"测试文本\"/>\n            <ItemName Language=\"CHI\" Value=\"女子 4 x 100米接力第一轮第三组\"/>\n\t\t\t<VenueDescription VenueName=\"晋江职校体育馆\" LocationName=\"职校\"/>\n        </Unit>\n\t\t<Unit Code=\"ATHW4X100M------------RND1000400--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-24T11:30:30\" EndDate=\"2020-04-24T12:30:30\" Order=\"1\" Medal=\"0\" Venue=\"ZHIXIAO\" Location=\"ZHIXIAO\" SessionCode=\"ATH-MN\" ModificationIndicator=\"N\">\n            <StartText Language=\"CHI\" Value=\"测试文本\"/>\n            <ItemName Language=\"CHI\" Value=\"女子 4 x 100米接力第一轮第四组\"/>\n\t\t\t<VenueDescription VenueName=\"晋江职校体育馆\" LocationName=\"职校\"/>\n        </Unit>\n\t</Competition>\n</OdfBody>",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "SCHEDULE_UPDATE",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "50e1ac81-18a6-4088-942a-54e7e7b769eb",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "552f5256-8b57-4e0d-a82d-36b13a6f6c35",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!--赛程更新-->\n<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATH-------------------------------\" DocumentType=\"DT_SCHEDULE_UPDATE\" ResultStatus=\"OFFICIAL\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-04-23\" Time=\"15:42:23\" LogicalDate=\"2020-04-23\" Source=\"ATH_OVR\">\n\t<Competition>\n        <Unit Code=\"ATHW4X100M------------RND1000100--\" PhaseType=\"3\" ScheduleStatus=\"FINISHED\" StartDate=\"2020-04-24T08:00:00\" EndDate=\"2020-04-24T09:00:00\" ActualStartDate=\"2020-04-24T08:00:00\" ActualEndDate=\"2020-04-24T09:30:00\" Order=\"1\" Medal=\"0\" Venue=\"ZHIXIAO\" Location=\"ZHIXIAO\" SessionCode=\"ATH-MN\" ModificationIndicator=\"N\">\n            <ItemName Language=\"CHI\" Value=\"女子 4 x 100米接力第一轮第一组\"/>\n\t\t\t<VenueDescription VenueName=\"ZHIXIAO\" LocationName=\"ZHIXIAO\"/>\n        </Unit>\n\t</Competition>\n</OdfBody>",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "RESULT",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!--成绩录入-->\n<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATHW4X100M------------RND1000100--\" DocumentType=\"DT_RESULT\" ResultStatus=\"OFFICIAL\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-05-08\" Time=\"10:48:22\" LogicalDate=\"2020-05-08\" Source=\"ATH_OVR\">\n    <Competition>\n        <ExtendedInfos>\n            <UnitDateTime StartDate=\"2020-04-27T15:00:00\"/>\n            <SportDescription DisciplineName=\"田径\" EventName=\"女子 4 x 100米接力\" Gender=\"W\"/>\n            <VenueDescription VenueName=\"晋江职校体育馆\" LocationName=\"职校\" Venue=\"ZHIXIAO\" Location=\"ZHIXIAO\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"WIND_SPEED\" Value=\"+1.2\"/>\n        </ExtendedInfos>\n        <Result Rank=\"1\" RankEqual=\"\" Result=\"00:12.88\" IRM=\"\" SortOrder=\"1\" StartOrder=\"1\" StartSortOrder=\"1\" ResultType=\"TIME\" Diff=\"\">\n            \n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHW4X100M------------------------\" RecordType=\"WR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"T\" Code=\"ATHWTEAM01\" Organisation=\"CHN\">\n                <Composition>\n                    <Athlete Code=\"ATHWAA0101\" Order=\"1\" Bib=\"1\">\n                        <Description GivenName=\"AA0101\" FamilyName=\"C\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"00:12.98\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"00:12.90\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHWAA0102\" Order=\"2\" Bib=\"2\">\n                        <Description GivenName=\"AA0102\" FamilyName=\"C\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHWAA0103\" Order=\"3\" Bib=\"3\">\n                        <Description GivenName=\"AA0103\" FamilyName=\"C\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHWAA0104\" Order=\"4\" Bib=\"4\">\n                        <Description GivenName=\"AA0104\" FamilyName=\"C\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n\t\t\n\t\t<Result Rank=\"2\" RankEqual=\"\" Result=\"00:13.88\" IRM=\"\" SortOrder=\"1\" StartOrder=\"2\" StartSortOrder=\"2\" ResultType=\"TIME\" Diff=\"+0.3\">\n            \n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHW4X100M------------------------\" RecordType=\"OR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"T\" Code=\"ATHUTEAM01\" Organisation=\"USA\">\n                <Composition>\n                    <Athlete Code=\"ATHUAA0101\" Order=\"1\" Bib=\"1\">\n                        <Description GivenName=\"AA0101\" FamilyName=\"U\" Organisation=\"USA\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"00:12.98\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"00:12.90\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHUAA0102\" Order=\"2\" Bib=\"2\">\n                        <Description GivenName=\"AA0102\" FamilyName=\"U\" Organisation=\"USA\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHUAA0103\" Order=\"3\" Bib=\"3\">\n                        <Description GivenName=\"AA0103\" FamilyName=\"U\" Organisation=\"USA\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHUAA0104\" Order=\"4\" Bib=\"4\">\n                        <Description GivenName=\"AA0104\" FamilyName=\"U\" Organisation=\"USA\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n\t</Competition>\n</OdfBody>",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "SCHEDULE_UPDATE_PHASE",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "7111f456-e821-47e7-b5ae-75e60d910b51",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "11ae3e5a-38dc-490a-a14e-d3d00d00becc",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATH-------------------------------\" DocumentType=\"DT_SCHEDULE\" ResultStatus=\"OFFICIAL\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-04-23\" Time=\"15:42:23\" LogicalDate=\"2020-04-23\" Source=\"ATH_OVR\">\n<!--赛程编排-->\n\t<Competition>\n        <Unit Code=\"ATHW4X100M------------------------\" PhaseType=\"3\" ScheduleStatus=\"FINISHED\" StartDate=\"2020-04-27T08:00:00\" EndDate=\"2020-04-27T09:00:00\" ActualStartDate=\"2020-04-27T09:00:00\" ActualEndDate=\"2020-04-27T10:00:00\" Order=\"1\" Medal=\"1\" Venue=\"ZHIXIAO\" Location=\"ZHIXIAO\" SessionCode=\"ATH-MN\" ModificationIndicator=\"N\">\n            <StartText Language=\"CHI\" Value=\"测试文本\"/>\n            <ItemName Language=\"CHI\" Value=\"女子 4 x 100米接力\"/>\n\t\t\t<VenueDescription VenueName=\"晋江职校体育馆\" LocationName=\"职校\"/>\n        </Unit>\n\t\t\n\t</Competition>\n</OdfBody>",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PHASE_RESULT",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!--阶段成绩-->\n<OdfBody CompetitionCode=\"JINJIANG2020\"\n         DocumentCode=\"ATHW4X100M------------RND1--------\"\n         DocumentType=\"DT_PHASE_RESULT\"\n         ResultStatus=\"OFFICIAL\"\n         Version=\"1\"\n         FeedFlag=\"P\"\n         Date=\"2020-02-10\"\n         Time=\"10:48:23\"\n         LogicalDate=\"2020-02-10\"\n         Source=\"ATH_OVR\">\n  <Competition>\n    <ExtendedInfos>\n     <!--该阶段最新一场比赛-->\n      <Progress LastUnit=\"ATHW4X100M------------RND1000400--\"/>\n      <SportDescription DisciplineName=\"Athletics\" EventName=\"Women's 4 x 100m Relay\" SubEventName=\"Women's 4 x 100m Relay Round 1\" Gender=\"M\"/>\n\t <!--场馆信息-->\n      <VenueDescription VenueName=\"晋江职校体育馆\" LocationName=\"职校\" Venue=\"ZHIXIAO\" Location=\"ZHIXIAO\"/>\n    </ExtendedInfos>\n    <Result Rank=\"1\" RankEqual=\"\" Result=\"00:12.88\" IRM=\"\" SortOrder=\"1\" StartOrder=\"1\" StartSortOrder=\"1\" ResultType=\"TIME\" Diff=\"\">\n            <Competitor Type=\"T\" Code=\"ATHWTEAM01\" Organisation=\"CHN\">\n                <Composition>\n                    <Athlete Code=\"ATHWAA0101\" Order=\"1\" Bib=\"1\">\n                        <Description GivenName=\"AA0101\" FamilyName=\"C\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"00:12.98\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"00:12.90\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHWAA0102\" Order=\"2\" Bib=\"2\">\n                        <Description GivenName=\"AA0102\" FamilyName=\"C\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHWAA0103\" Order=\"3\" Bib=\"3\">\n                        <Description GivenName=\"AA0103\" FamilyName=\"C\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHWAA0104\" Order=\"4\" Bib=\"4\">\n                        <Description GivenName=\"AA0104\" FamilyName=\"C\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n\t\t\n\t\t<Result Rank=\"2\" RankEqual=\"\" Result=\"00:13.88\" IRM=\"\" SortOrder=\"1\" StartOrder=\"2\" StartSortOrder=\"2\" ResultType=\"TIME\" Diff=\"+0.3\">\n            <Competitor Type=\"T\" Code=\"ATHUTEAM01\" Organisation=\"USA\">\n                <Composition>\n                    <Athlete Code=\"ATHUAA0101\" Order=\"1\" Bib=\"1\">\n                        <Description GivenName=\"AA0101\" FamilyName=\"U\" Organisation=\"USA\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"00:12.98\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"00:12.90\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHUAA0102\" Order=\"2\" Bib=\"2\">\n                        <Description GivenName=\"AA0102\" FamilyName=\"U\" Organisation=\"USA\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHUAA0103\" Order=\"3\" Bib=\"3\">\n                        <Description GivenName=\"AA0103\" FamilyName=\"U\" Organisation=\"USA\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHUAA0104\" Order=\"4\" Bib=\"4\">\n                        <Description GivenName=\"AA0104\" FamilyName=\"U\" Organisation=\"USA\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n  </Competition>\n</OdfBody>",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "SCHEDULE_UPDATE_RANKING",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "19c2b7e7-f709-4202-95ca-faa9d81b3e10",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "471c5f84-4908-4aaf-977c-fbb9c49af855",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATH-------------------------------\" DocumentType=\"DT_SCHEDULE\" ResultStatus=\"OFFICIAL\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-04-23\" Time=\"15:42:23\" LogicalDate=\"2020-04-23\" Source=\"ATH_OVR\">\n<!--赛程编排-->\n\t<Competition>\n        <Unit Code=\"ATHW4X100M------------------------\" PhaseType=\"3\" ScheduleStatus=\"FINISHED\" StartDate=\"2020-04-27T08:00:00\" EndDate=\"2020-04-27T09:00:00\" ActualStartDate=\"2020-04-27T09:00:00\" ActualEndDate=\"2020-04-27T10:00:00\" Order=\"1\" Medal=\"1\" Venue=\"ZHIXIAO\" Location=\"ZHIXIAO\" SessionCode=\"ATH-MN\" ModificationIndicator=\"N\">\n            <StartText Language=\"CHI\" Value=\"测试文本\"/>\n            <ItemName Language=\"CHI\" Value=\"女子 4 x 100米接力\"/>\n\t\t\t<VenueDescription VenueName=\"晋江职校体育馆\" LocationName=\"职校\"/>\n        </Unit>\n\t\t\n\t</Competition>\n</OdfBody>",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "RANKING",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!--名次公告-->\n<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATHW4X100M------------------------\" DocumentType=\"DT_RANKING\" ResultStatus=\"OFFICIAL\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-05-06\" Time=\"14:47:29\" LogicalDate=\"2020-05-06\" Source=\"ATH_OVR\">\n    <Competition>\n        <ExtendedInfos>\n            <UnitDateTime StartDate=\"2020-04-27T15:00:00\"/>\n            <SportDescription DisciplineName=\"田径\" EventName=\"女子 4 x 100米接力\" Gender=\"W\"/>\n            <VenueDescription VenueName=\"晋江职校体育馆\" LocationName=\"职校\" Venue=\"ZHIXIAO\" Location=\"ZHIXIAO\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"WIND_SPEED\" Value=\"+1.2\"/>\n        </ExtendedInfos>\n        <Result Rank=\"1\" RankEqual=\"\" Result=\"00:12.88\" IRM=\"\" SortOrder=\"1\" StartOrder=\"1\" StartSortOrder=\"1\" ResultType=\"TIME\" Diff=\"\">\n            <Competitor Type=\"T\" Code=\"ATHWTEAM01\" Organisation=\"CHN\">\n                <Composition>\n                    <Athlete Code=\"ATHMAA0101\" Order=\"1\" Bib=\"1\">\n                        <Description GivenName=\"AA0101\" FamilyName=\"Z\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"00:12.98\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"00:12.90\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHMAA0102\" Order=\"2\" Bib=\"2\">\n                        <Description GivenName=\"AA0102\" FamilyName=\"Z\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHMAA0103\" Order=\"3\" Bib=\"3\">\n                        <Description GivenName=\"AA0103\" FamilyName=\"Z\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHMAA0104\" Order=\"4\" Bib=\"4\">\n                        <Description GivenName=\"AA0104\" FamilyName=\"Z\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n\t\t<Result Rank=\"2\" RankEqual=\"\" Result=\"00:15.88\" IRM=\"\" SortOrder=\"1\" StartOrder=\"1\" StartSortOrder=\"1\" ResultType=\"TIME\" Diff=\"\">\n            <Competitor Type=\"T\" Code=\"ATHUTEAM01\" Organisation=\"USA\">\n               <Composition>\n                    <Athlete Code=\"ATHUAA0101\" Order=\"1\" Bib=\"1\">\n                        <Description GivenName=\"AA0101\" FamilyName=\"Z\" Organisation=\"USA\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"00:12.98\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"00:12.90\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHUAA0102\" Order=\"2\" Bib=\"2\">\n                        <Description GivenName=\"AA0102\" FamilyName=\"Z\" Organisation=\"USA\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHUAA0103\" Order=\"3\" Bib=\"3\">\n                        <Description GivenName=\"AA0103\" FamilyName=\"Z\" Organisation=\"USA\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n\t\t\t\t\t<Athlete Code=\"ATHUAA0104\" Order=\"4\" Bib=\"4\">\n                        <Description GivenName=\"AA0104\" FamilyName=\"Z\" Organisation=\"USA\" Gender=\"W\" BirthDate=\"1993-09-20\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n\t</Competition>\n</OdfBody>",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "devDemo",
+					"item": [
+						{
+							"name": "SCHEDULE",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e3028356-c5e6-4ff8-911b-4e8aca7eafee",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "da18dab4-fa57-4b22-b7f3-fa2d325cb803",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATH-------------------------------\" DocumentType=\"DT_SCHEDULE\" ResultStatus=\"OFFICIAL\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-04-23\" Time=\"15:42:23\" LogicalDate=\"2020-04-23\" Source=\"ATH_OVR\">\n    <Competition>\n        <Unit Code=\"ATHM110MHURD----------FNL---------\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-24T07:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"1\" Medal=\"0\" Venue=\"ZHIXIAO\" Location=\"ZHIXIAO\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"Men&apos;s 100m Final\"/>\n            <ItemName Language=\"ENG\" Value=\"QUALIFICATION\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHWLONGJUMP----------FNL-000100--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-29T15:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"3\" Medal=\"1\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"\"/>\n            <ItemName Language=\"ENG\" Value=\"Women&apos;s Long Jump FINAL\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHW4X100M------------PREL000100--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-24T11:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"2\" Medal=\"0\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"Men&apos;s 100m Final\"/>\n            <ItemName Language=\"ENG\" Value=\"ROUND1\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHW4X100M------------PREL000200--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-24T11:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"3\" Medal=\"0\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"Men&apos;s 100m Final\"/>\n            <ItemName Language=\"ENG\" Value=\"ROUND1\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHW4X100M------------PREL000300--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-24T11:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"4\" Medal=\"0\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"Men&apos;s 100m Final\"/>\n            <ItemName Language=\"ENG\" Value=\"ROUND1\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHW4X100M------------PREL000400--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-24T11:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"5\" Medal=\"0\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"Men&apos;s 100m Final\"/>\n            <ItemName Language=\"ENG\" Value=\"ROUND1\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHMTRPLJUMP----------FNL-000100--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-24T14:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"6\" Medal=\"1\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"Men&apos;s 100m Final\"/>\n            <ItemName Language=\"ENG\" Value=\"FINAL\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHW4X100M------------RND1000100--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-24T17:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"7\" Medal=\"0\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"Men&apos;s 100m Final\"/>\n            <ItemName Language=\"ENG\" Value=\"ROUND2\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHW4X100M------------RND1000200--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-24T17:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"8\" Medal=\"0\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"Men&apos;s 100m Final\"/>\n            <ItemName Language=\"ENG\" Value=\"ROUND2\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHW4X100M------------RND1000300--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-24T17:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"9\" Medal=\"0\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"Men&apos;s 100m Final\"/>\n            <ItemName Language=\"ENG\" Value=\"ROUND2\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHW4X100M------------RND1000400--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-24T17:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"10\" Medal=\"0\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"Men&apos;s 100m Final\"/>\n            <ItemName Language=\"ENG\" Value=\"ROUND2\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHM20KMWALK----------FNL-000100--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-25T08:30:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"11\" Medal=\"1\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"Men&apos;s 100m Final\"/>\n            <ItemName Language=\"ENG\" Value=\"\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHMHIGHJUMP----------FNL-000100--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-25T09:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"12\" Medal=\"1\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"Men&apos;s 100m Final\"/>\n            <ItemName Language=\"ENG\" Value=\"FINAL\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHW4X100M------------SFNL000100--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-25T11:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"13\" Medal=\"0\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"Men&apos;s 100m Final\"/>\n            <ItemName Language=\"ENG\" Value=\"SEMIFINAL\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHM110MHURD----------FNL-000100--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-25T17:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"14\" Medal=\"1\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"Men&apos;s 100m Final\"/>\n            <ItemName Language=\"ENG\" Value=\"FINAL\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHW4X100M------------FNL-000100--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-25T17:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"15\" Medal=\"1\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"Men&apos;s 100m Final\"/>\n            <ItemName Language=\"ENG\" Value=\"FINAL\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHWLONGJUMP----------QUALA00100--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-29T09:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"1\" Medal=\"0\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"\"/>\n            <ItemName Language=\"ENG\" Value=\"Women&apos;s Long Jump QUALIFICATION\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHWLONGJUMP----------QUALB00100--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-29T08:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"2\" Medal=\"0\" Venue=\"ZHIXIAO\" Location=\"ZHIXIAO\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"\"/>\n            <ItemName Language=\"ENG\" Value=\"Women&apos;s Long Jump QUALIFICATION\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n        <Unit Code=\"ATHWLONGJUMP----------FNL-000100--\" PhaseType=\"3\" ScheduleStatus=\"SCHEDULED\" StartDate=\"2020-04-29T15:00:00\" EndDate=\"\" ActualStartDate=\"\" ActualEndDate=\"\" Order=\"3\" Medal=\"1\" Venue=\"\" Location=\"JINJIANG\" SessionCode=\"ATH01\" ModificationIndicator=\"N\">\n            <StartText Language=\"ENG\" Value=\"\"/>\n            <ItemName Language=\"ENG\" Value=\"Women&apos;s Long Jump FINAL\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\"/>\n        </Unit>\n    </Competition>\n</OdfBody>\n",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "START_LIST_女子跳远",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "981145d7-d62c-409b-a5cc-b6a8737b9505",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "e7056333-0f0b-412e-8492-0f21f5d86c63",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATHWLONGJUMP----------QUALB00100--\" DocumentType=\"DT_RESULT\" ResultStatus=\"START_LIST\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-04-28\" Time=\"10:10:21\" LogicalDate=\"2020-04-28\" Source=\"ATH_OVR\">\n    <Competition>\n        <ExtendedInfos>\n            <UnitDateTime StartDate=\"2020-04-29T09:00:00\"/>\n            <SportDescription DisciplineName=\"\" EventName=\"女子组跳远\" Gender=\"W\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\" Venue=\"\" Location=\"\"/>\n        </ExtendedInfos>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"NM\" IRM=\"\" SortOrder=\"1\" StartOrder=\"1\" StartSortOrder=\"1\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults/>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"AUS\">\n                <Composition>\n                    <Athlete Code=\"AUS_test_code_01\" Order=\"1\" Bib=\"5\">\n                        <Description GivenName=\"AUS_gn名01\" FamilyName=\"AUS姓n01\" Organisation=\"AUS\" Gender=\"W\" BirthDate=\"1999-12-25\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"NM\" IRM=\"\" SortOrder=\"2\" StartOrder=\"2\" StartSortOrder=\"2\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults/>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"AUT\">\n                <Composition>\n                    <Athlete Code=\"AUT_test_code_01\" Order=\"2\" Bib=\"6\">\n                        <Description GivenName=\"AUT_gn名01\" FamilyName=\"AUT姓n01\" Organisation=\"AUT\" Gender=\"W\" BirthDate=\"1999-12-25\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"NM\" IRM=\"\" SortOrder=\"3\" StartOrder=\"3\" StartSortOrder=\"3\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults/>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"USA\">\n                <Composition>\n                    <Athlete Code=\"USA_test_code_01\" Order=\"3\" Bib=\"7\">\n                        <Description GivenName=\"USA_gn名01\" FamilyName=\"USA姓n01\" Organisation=\"USA\" Gender=\"W\" BirthDate=\"1999-12-25\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n    </Competition>\n</OdfBody>\n",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "START_LIST_男子110米栏",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "c5b03cea-4484-4c46-ae8b-c2d9b362d4ec",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "dece4015-be43-4647-a837-8ff26d45daa9",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATHM110MHURD----------FNL-000100--\" DocumentType=\"DT_RESULT\" ResultStatus=\"START_LIST\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-04-24\" Time=\"14:29:59\" LogicalDate=\"2020-04-24\" Source=\"ATH_OVR\">\n    <Competition>\n        <ExtendedInfos>\n            <UnitDateTime StartDate=\"2020-04-25T17:00:00\"/>\n            <SportDescription DisciplineName=\"\" EventName=\"男子组110米栏\" Gender=\"M\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\" Venue=\"\" Location=\"\"/>\n        </ExtendedInfos>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"\" IRM=\"\" SortOrder=\"2\" StartOrder=\"2\" StartSortOrder=\"2\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BIH\">\n                <Composition>\n                    <Athlete Code=\"BIH01\" Order=\"1\" Bib=\"111\">\n                        <Description GivenName=\"BIH01\" FamilyName=\"BIHF01\" Organisation=\"BIH\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"\" IRM=\"\" SortOrder=\"3\" StartOrder=\"3\" StartSortOrder=\"3\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"ARG\">\n                <Composition>\n                    <Athlete Code=\"ARG01\" Order=\"2\" Bib=\"105\">\n                        <Description GivenName=\"ARG01\" FamilyName=\"ARGF01\" Organisation=\"ARG\" Gender=\"M\" BirthDate=\"1992-01-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"\" IRM=\"\" SortOrder=\"5\" StartOrder=\"5\" StartSortOrder=\"5\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BHU\">\n                <Composition>\n                    <Athlete Code=\"BHU01\" Order=\"3\" Bib=\"110\">\n                        <Description GivenName=\"BHU01\" FamilyName=\"BHUF01\" Organisation=\"BHU\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"\" IRM=\"\" SortOrder=\"7\" StartOrder=\"7\" StartSortOrder=\"7\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BEL\">\n                <Composition>\n                    <Athlete Code=\"BEL01\" Order=\"4\" Bib=\"108\">\n                        <Description GivenName=\"BEL01\" FamilyName=\"BELF01\" Organisation=\"BEL\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"\" IRM=\"\" SortOrder=\"8\" StartOrder=\"8\" StartSortOrder=\"8\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BAH\">\n                <Composition>\n                    <Athlete Code=\"BAH01\" Order=\"5\" Bib=\"109\">\n                        <Description GivenName=\"BAH01\" FamilyName=\"BAHF01\" Organisation=\"BAH\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n    </Competition>\n</OdfBody>\n",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "RESULT_女子跳远决赛",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "0aa914b3-e97a-4d72-8321-5979e3ee4622",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "897f7a2b-b191-4b07-a68c-627e2f05d51f",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATHWLONGJUMP----------FNL-000100--\" DocumentType=\"DT_RESULT\" ResultStatus=\"OFFICIAL\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-04-28\" Time=\"10:48:22\" LogicalDate=\"2020-04-28\" Source=\"ATH_OVR\">\n    <Competition>\n        <ExtendedInfos>\n            <UnitDateTime StartDate=\"2020-04-29T15:00:00\"/>\n            <SportDescription DisciplineName=\"\" EventName=\"女子组跳远\" Gender=\"W\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\" Venue=\"\" Location=\"\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"WIND_SPEED\" Value=\"\"/>\n        </ExtendedInfos>\n        <Result Rank=\"2\" RankEqual=\"\" Result=\"6.24\" IRM=\"\" SortOrder=\"1\" StartOrder=\"1\" StartSortOrder=\"1\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"BEST_ATTEMPT_NUM\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"WIND_SPEED\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"6.24\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"+0.5\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"6.22\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"-0.6\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"5.98\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"-0.4\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHWLONGJUMP----------------------\" RecordType=\"OR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"AUT\">\n                <Composition>\n                    <Athlete Code=\"AUT_test_code_01\" Order=\"1\" Bib=\"6\">\n                        <Description GivenName=\"AUT_gn名01\" FamilyName=\"AUT姓n01\" Organisation=\"AUT\" Gender=\"W\" BirthDate=\"1999-12-25\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"3\" RankEqual=\"\" Result=\"6.21\" IRM=\"\" SortOrder=\"2\" StartOrder=\"2\" StartSortOrder=\"2\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"BEST_ATTEMPT_NUM\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"WIND_SPEED\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"X\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"6.21\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"+0.5\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"6.02\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"+0.3\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHWLONGJUMP----------------------\" RecordType=\"AR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"AUS\">\n                <Composition>\n                    <Athlete Code=\"AUS_test_code_01\" Order=\"2\" Bib=\"5\">\n                        <Description GivenName=\"AUS_gn名01\" FamilyName=\"AUS姓n01\" Organisation=\"AUS\" Gender=\"W\" BirthDate=\"1999-12-25\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"NM\" IRM=\"\" SortOrder=\"3\" StartOrder=\"3\" StartSortOrder=\"3\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"BEST_ATTEMPT_NUM\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"WIND_SPEED\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"X\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"X\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"X\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"ARG\">\n                <Composition>\n                    <Athlete Code=\"ARG_test_code_01\" Order=\"3\" Bib=\"3\">\n                        <Description GivenName=\"ARG_gn名01\" FamilyName=\"ARG姓n01\" Organisation=\"ARG\" Gender=\"W\" BirthDate=\"1999-12-25\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"1\" RankEqual=\"\" Result=\"6.52\" IRM=\"\" SortOrder=\"4\" StartOrder=\"4\" StartSortOrder=\"4\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"BEST_ATTEMPT_NUM\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"WIND_SPEED\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"6.52\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"+0.5\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"r\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHWLONGJUMP----------------------\" RecordType=\"WR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"ANG\">\n                <Composition>\n                    <Athlete Code=\"ANG_test_code_01\" Order=\"4\" Bib=\"2\">\n                        <Description GivenName=\"ANG_gn名01\" FamilyName=\"ANG姓n01\" Organisation=\"ANG\" Gender=\"W\" BirthDate=\"1999-12-25\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n    </Competition>\n</OdfBody>\n",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "RESULT_20公里竞走",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "7f1b1448-3fc8-4ce4-b091-c65a508c513b",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "60cbc2b3-f7f3-4cee-8883-ea83717518a8",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATHM20KMWALK----------FNL-000100--\" DocumentType=\"DT_RESULT\" ResultStatus=\"OFFICIAL\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-04-23\" Time=\"15:33:14\" LogicalDate=\"2020-04-23\" Source=\"ATH_OVR\">\n    <Competition>\n        <ExtendedInfos>\n            <UnitDateTime StartDate=\"2020-04-25T08:30:00\"/>\n            <SportDescription DisciplineName=\"\" EventName=\"男子组20公里竞走\" Gender=\"M\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\" Venue=\"\" Location=\"\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"1圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"2圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"3圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"4圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"5圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"6圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"7圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"8\" Value=\"8圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"9\" Value=\"9圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"10\" Value=\"10圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"11\" Value=\"11圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"12\" Value=\"12圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"13\" Value=\"13圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"14\" Value=\"14圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"15\" Value=\"15圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"16\" Value=\"16圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"17\" Value=\"17圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"18\" Value=\"18圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"19\" Value=\"19圈\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"20\" Value=\"20圈\"/>\n        </ExtendedInfos>\n        <Result Rank=\"4\" RankEqual=\"\" Result=\"1:31:29.09\" IRM=\"\" SortOrder=\"1\" StartOrder=\"1\" StartSortOrder=\"1\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"4:27.08\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"8:59.95\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"13:32.04\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"18:05.96\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"22:42.02\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"27:14.01\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"31:45.99\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"8\" Value=\"36:12.11\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"9\" Value=\"40:44.00\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"10\" Value=\"45:08.98\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"11\" Value=\"49:32.88\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"12\" Value=\"53:57.96\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"13\" Value=\"58:49.92\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"14\" Value=\"1:03:29.94\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"15\" Value=\"1:08:20.88\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"16\" Value=\"1:13:14.93\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"17\" Value=\"1:17:48.93\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"18\" Value=\"1:22:21.10\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"19\" Value=\"1:26:59.95\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"20\" Value=\"1:31:29.09\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"1\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BAH\">\n                <Composition>\n                    <Athlete Code=\"BAH_code01\" Order=\"1\" Bib=\"506\">\n                        <Description GivenName=\"BAH_gn01\" FamilyName=\"BAH_fn01\" Organisation=\"BAH\" Gender=\"M\" BirthDate=\"1999-01-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"1\" RankEqual=\"\" Result=\"1:24:39.99\" IRM=\"\" SortOrder=\"2\" StartOrder=\"2\" StartSortOrder=\"2\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"4:10.01\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"8:21.99\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"12:29.98\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"16:40.99\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"20:53.88\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"25:10.98\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"29:27.95\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"8\" Value=\"33:42.89\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"9\" Value=\"38:00.94\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"10\" Value=\"42:15.06\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"11\" Value=\"46:33.09\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"12\" Value=\"50:50.91\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"13\" Value=\"55:06.88\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"14\" Value=\"59:22.98\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"15\" Value=\"1:03:37.93\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"16\" Value=\"1:07:52.06\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"17\" Value=\"1:12:10.94\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"18\" Value=\"1:16:20.95\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"19\" Value=\"1:20:30.89\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"20\" Value=\"1:24:39.99\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"2\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHM20KMWALK----------------------\" RecordType=\"WR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BEN\">\n                <Composition>\n                    <Athlete Code=\"BEN_code01\" Order=\"2\" Bib=\"505\">\n                        <Description GivenName=\"BEN_gn01\" FamilyName=\"BEN_fn01\" Organisation=\"BEN\" Gender=\"M\" BirthDate=\"1999-01-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"3\" RankEqual=\"\" Result=\"1:26:30.02\" IRM=\"\" SortOrder=\"3\" StartOrder=\"3\" StartSortOrder=\"3\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"4:14.05\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"8:35.93\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"12:56.97\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"17:17.88\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"21:40.98\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"26:05.02\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"30:26.06\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"8\" Value=\"34:46.92\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"9\" Value=\"39:06.06\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"10\" Value=\"43:23.13\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"11\" Value=\"47:38.08\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"12\" Value=\"51:54.88\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"13\" Value=\"56:10.99\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"14\" Value=\"1:00:27.12\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"15\" Value=\"1:04:44.90\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"16\" Value=\"1:09:06.94\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"17\" Value=\"1:13:34.12\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"18\" Value=\"1:18:00.02\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"19\" Value=\"1:22:21.02\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"20\" Value=\"1:26:30.02\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"3\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BEL\">\n                <Composition>\n                    <Athlete Code=\"BEL_code01\" Order=\"3\" Bib=\"504\">\n                        <Description GivenName=\"BEL_gn01\" FamilyName=\"BEL_fn01\" Organisation=\"BEL\" Gender=\"M\" BirthDate=\"1999-01-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"2\" RankEqual=\"\" Result=\"1:25:58.96\" IRM=\"\" SortOrder=\"4\" StartOrder=\"4\" StartSortOrder=\"4\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"4:10.04\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"8:21.94\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"12:36.99\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"17:01.07\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"21:20.13\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"25:39.06\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"29:57.02\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"8\" Value=\"34:17.99\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"9\" Value=\"38:38.96\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"10\" Value=\"42:53.11\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"11\" Value=\"47:11.94\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"12\" Value=\"51:29.04\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"13\" Value=\"55:49.10\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"14\" Value=\"1:00:07.91\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"15\" Value=\"1:04:26.10\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"16\" Value=\"1:08:48.95\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"17\" Value=\"1:13:07.95\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"18\" Value=\"1:17:28.93\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"19\" Value=\"1:21:47.08\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"20\" Value=\"1:25:58.96\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"4\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BDI\">\n                <Composition>\n                    <Athlete Code=\"BDI_code01\" Order=\"4\" Bib=\"503\">\n                        <Description GivenName=\"BDI_gn01\" FamilyName=\"BDI_fn01\" Organisation=\"BDI\" Gender=\"M\" BirthDate=\"1999-01-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"\" IRM=\"DNF\" SortOrder=\"5\" StartOrder=\"5\" StartSortOrder=\"5\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"4:37.92\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"9:30.96\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"14:27.98\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"19:17.05\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"23:55.11\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"8\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"9\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"10\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"11\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"12\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"13\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"14\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"15\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"16\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"17\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"18\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"19\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"20\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"5\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BAR\">\n                <Composition>\n                    <Athlete Code=\"BAR_code01\" Order=\"5\" Bib=\"502\">\n                        <Description GivenName=\"BAR_gn01\" FamilyName=\"BAR_fn01\" Organisation=\"BAR\" Gender=\"M\" BirthDate=\"1999-01-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"\" IRM=\"DNF\" SortOrder=\"6\" StartOrder=\"6\" StartSortOrder=\"6\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"4:15.00\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"8:36.00\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"12:57.03\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"17:17.95\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"21:41.02\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"26:05.94\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"30:26.90\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"8\" Value=\"34:46.96\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"9\" Value=\"39:06.96\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"10\" Value=\"43:23.99\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"11\" Value=\"47:38.97\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"12\" Value=\"51:55.11\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"13\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"14\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"15\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"16\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"17\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"18\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"19\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"20\" Value=\"\" ValueType=\"TIME\" Rank=\"\" SortOrder=\"6\" Move=\"\" Diff=\"\">\n                    <Extension Code=\"SECTION\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BAN\">\n                <Composition>\n                    <Athlete Code=\"BAN_code01\" Order=\"6\" Bib=\"501\">\n                        <Description GivenName=\"BAN_gn01\" FamilyName=\"BAN_fn01\" Organisation=\"BAN\" Gender=\"M\" BirthDate=\"1999-01-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n    </Competition>\n</OdfBody>\n",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "RESULT_男子跳高",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "bd0594e2-d19a-4a13-a87b-c98e851a2583",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "020399de-ba4a-4189-ab6d-c6e65fd119be",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATHMHIGHJUMP----------QUALA00100--\" DocumentType=\"DT_RESULT\" ResultStatus=\"OFFICIAL\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-04-22\" Time=\"11:38:16\" LogicalDate=\"2020-04-22\" Source=\"ATH_OVR\">\n    <Competition>\n        <ExtendedInfos>\n            <UnitDateTime StartDate=\"2020-04-24T09:00:00\"/>\n            <ExtendedInfo Type=\"DISPLAY\" Code=\"INTERMEDIATE_ATTEMPT_CURRENT\" Value=\"1\"/>\n            <ExtendedInfo Type=\"DISPLAY\" Code=\"CURRENT\" Pos=\"1\" Value=\"\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"2.10\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"2.15\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"2.20\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"2.25\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"2.30\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"2.34\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"2.38\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"8\" Value=\"2.41\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"9\" Value=\"2.44\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"INTERMEDIATE\" Pos=\"10\" Value=\"2.47\"/>\n            <SportDescription DisciplineName=\"\" EventName=\"男子组跳高\" Gender=\"M\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\" Venue=\"\" Location=\"\"/>\n        </ExtendedInfos>\n        <Result Rank=\"4\" RankEqual=\"\" Result=\"2.25\" IRM=\"\" SortOrder=\"1\" StartOrder=\"1\" StartSortOrder=\"1\" ResultType=\"DISTANCE\" QualificationMark=\"q\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"IN_COMP\" Value=\"Y\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"0\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"-\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"-\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"SCORE\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"AUS\">\n                <Composition>\n                    <Athlete Code=\"AUS_code01\" Order=\"1\" Bib=\"104\">\n                        <Description GivenName=\"AUS_gn01\" FamilyName=\"AUS_fn01\" Organisation=\"AUS\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"3\" RankEqual=\"\" Result=\"2.30\" IRM=\"\" SortOrder=\"2\" StartOrder=\"2\" StartSortOrder=\"2\" ResultType=\"DISTANCE\" QualificationMark=\"q\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"IN_COMP\" Value=\"Y\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"-\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"-\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"SCORE\" Value=\"\"/>\n            </ExtendedResults>\n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHMHIGHJUMP----------------------\" RecordType=\"AR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"ARG\">\n                <Composition>\n                    <Athlete Code=\"ARG_code01\" Order=\"2\" Bib=\"106\">\n                        <Description GivenName=\"ARG_gn01\" FamilyName=\"ARG_fn01\" Organisation=\"ARG\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"2\" RankEqual=\"\" Result=\"2.41\" IRM=\"\" SortOrder=\"3\" StartOrder=\"3\" StartSortOrder=\"3\" ResultType=\"DISTANCE\" QualificationMark=\"q\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"IN_COMP\" Value=\"Y\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"-\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"8\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"8\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"SCORE\" Value=\"\"/>\n            </ExtendedResults>\n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHMHIGHJUMP----------------------\" RecordType=\"NR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"USA\">\n                <Composition>\n                    <Athlete Code=\"USA_code01\" Order=\"3\" Bib=\"113\">\n                        <Description GivenName=\"USA_gn01\" FamilyName=\"USA_fn01\" Organisation=\"USA\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"5\" RankEqual=\"\" Result=\"2.20\" IRM=\"\" SortOrder=\"4\" StartOrder=\"4\" StartSortOrder=\"4\" ResultType=\"DISTANCE\" QualificationMark=\"q\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"IN_COMP\" Value=\"Y\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"8\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"SCORE\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"AFG\">\n                <Composition>\n                    <Athlete Code=\"AFG_code01\" Order=\"4\" Bib=\"115\">\n                        <Description GivenName=\"AFG_gn01\" FamilyName=\"AFG_fn01\" Organisation=\"AFG\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"1\" RankEqual=\"\" Result=\"2.47\" IRM=\"\" SortOrder=\"5\" StartOrder=\"5\" StartSortOrder=\"5\" ResultType=\"DISTANCE\" QualificationMark=\"q\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"IN_COMP\" Value=\"Y\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"7\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"8\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"8\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"8\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"9\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"9\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"9\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"10\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"10\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"SCORE\" Value=\"\"/>\n            </ExtendedResults>\n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHMHIGHJUMP----------------------\" RecordType=\"WR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"ANG\">\n                <Composition>\n                    <Athlete Code=\"ANG_code01\" Order=\"5\" Bib=\"116\">\n                        <Description GivenName=\"ANG_gn01\" FamilyName=\"ANG_fn01\" Organisation=\"ANG\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"\" IRM=\"DNF\" SortOrder=\"6\" StartOrder=\"6\" StartSortOrder=\"6\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"SCORE\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"ARM\">\n                <Composition>\n                    <Athlete Code=\"ARM_code01\" Order=\"6\" Bib=\"117\">\n                        <Description GivenName=\"ARM_gn01\" FamilyName=\"ARM_fn01\" Organisation=\"ARM\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"6\" RankEqual=\"\" Result=\"2.15\" IRM=\"\" SortOrder=\"7\" StartOrder=\"7\" StartSortOrder=\"7\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"IN_COMP\" Value=\"Y\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"10\" Value=\"X\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"O\"/>\n                <ExtendedResult Type=\"ER\" Code=\"SCORE\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"AUT\">\n                <Composition>\n                    <Athlete Code=\"AUT_code01\" Order=\"7\" Bib=\"118\">\n                        <Description GivenName=\"AUT_gn01\" FamilyName=\"AUT_fn01\" Organisation=\"AUT\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n    </Competition>\n</OdfBody>\n",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "RESULT_男子110米栏",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "2e25575c-676c-4b38-95ef-d104857eda4f",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "bd5f6986-274c-46e0-bd06-38fd7c20b418",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATHM110MHURD----------FNL-000100--\" DocumentType=\"DT_RESULT\" ResultStatus=\"OFFICIAL\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-04-21\" Time=\"10:06:53\" LogicalDate=\"2020-04-21\" Source=\"AT_OVR\">\n    <Competition>\n        <ExtendedInfos>\n            <UnitDateTime StartDate=\"2020-04-25T17:00:00\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"WIND_SPEED\" Value=\"+0.6\"/>\n            <SportDescription DisciplineName=\"\" EventName=\"男子组110米栏\" Gender=\"M\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\" Venue=\"\" Location=\"\"/>\n        </ExtendedInfos>\n        <Result Rank=\"4\" RankEqual=\"\" Result=\"15.27\" IRM=\"\" SortOrder=\"3\" StartOrder=\"3\" StartSortOrder=\"3\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"ARG\">\n                <Composition>\n                    <Athlete Code=\"ARG01\" Order=\"1\" Bib=\"104\">\n                        <Description GivenName=\"ARG01\" FamilyName=\"ARGF01\" Organisation=\"ARG\" Gender=\"M\" BirthDate=\"1992-01-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"3\" RankEqual=\"\" Result=\"14.65\" IRM=\"\" SortOrder=\"2\" StartOrder=\"2\" StartSortOrder=\"2\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BIH\">\n                <Composition>\n                    <Athlete Code=\"BIH01\" Order=\"2\" Bib=\"109\">\n                        <Description GivenName=\"BIH01\" FamilyName=\"BIHF01\" Organisation=\"BIH\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"\" IRM=\"DNS\" SortOrder=\"5\" StartOrder=\"5\" StartSortOrder=\"5\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BHU\">\n                <Composition>\n                    <Athlete Code=\"BHU01\" Order=\"3\" Bib=\"108\">\n                        <Description GivenName=\"BHU01\" FamilyName=\"BHUF01\" Organisation=\"BHU\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"1\" RankEqual=\"\" Result=\"14.35\" IRM=\"\" SortOrder=\"8\" StartOrder=\"8\" StartSortOrder=\"8\" ResultType=\"TIME\" QualificationMark=\"q\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BAH\">\n                <Composition>\n                    <Athlete Code=\"BAH01\" Order=\"4\" Bib=\"107\">\n                        <Description GivenName=\"BAH01\" FamilyName=\"BAHF01\" Organisation=\"BAH\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"2\" RankEqual=\"\" Result=\"14.54\" IRM=\"\" SortOrder=\"7\" StartOrder=\"7\" StartSortOrder=\"7\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BEL\">\n                <Composition>\n                    <Athlete Code=\"BEL01\" Order=\"5\" Bib=\"106\">\n                        <Description GivenName=\"BEL01\" FamilyName=\"BELF01\" Organisation=\"BEL\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n    </Competition>\n</OdfBody>\n",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "RESULT_女子接力",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "1a05b7e9-e575-436b-8817-bd0006912e31",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "18afa8fa-0046-449e-a837-ddd063ffe0ed",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATHW4X100M------------RND1000400--\" DocumentType=\"DT_RESULT\" ResultStatus=\"OFFICIAL\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-04-22\" Time=\"13:55:13\" LogicalDate=\"2020-04-22\" Source=\"ATH_OVR\">\n    <Competition>\n        <ExtendedInfos>\n            <UnitDateTime StartDate=\"2020-04-24T17:00:00\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"WIND_SPEED\" Value=\"\"/>\n            <SportDescription DisciplineName=\"\" EventName=\"女子组4x100米接力\" Gender=\"W\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\" Venue=\"\" Location=\"\"/>\n        </ExtendedInfos>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"\" IRM=\"DQ\" SortOrder=\"2\" StartOrder=\"2\" StartSortOrder=\"2\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"T\" Code=\"TEAM_CHN_02\" Organisation=\"CHN\">\n                <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                <Composition>\n                    <Athlete Code=\"TEAM_CHN_02_1\" Order=\"1\" Bib=\"210\">\n                        <Description GivenName=\"gnTEAM_CHN_02_1\" FamilyName=\"fnTEAM_CHN_02_1\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1999-01-01\"/>\n                    </Athlete>\n                    <Athlete Code=\"TEAM_CHN_02_2\" Order=\"2\" Bib=\"211\">\n                        <Description GivenName=\"gnTEAM_CHN_02_2\" FamilyName=\"fnTEAM_CHN_02_2\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1999-01-01\"/>\n                    </Athlete>\n                    <Athlete Code=\"TEAM_CHN_02_3\" Order=\"3\" Bib=\"212\">\n                        <Description GivenName=\"TEAM_CHN_02_3\" FamilyName=\"TEAM_CHN_02_3\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1999-01-01\"/>\n                    </Athlete>\n                    <Athlete Code=\"TEAM_CHN_02_4\" Order=\"4\" Bib=\"213\">\n                        <Description GivenName=\"gnTEAM_CHN_02_4\" FamilyName=\"fnTEAM_CHN_02_4\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1999-01-01\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"1\" RankEqual=\"\" Result=\"40.51\" IRM=\"\" SortOrder=\"3\" StartOrder=\"3\" StartSortOrder=\"3\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"0.13\"/>\n            </ExtendedResults>\n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHW4X100M------------------------\" RecordType=\"WR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"T\" Code=\"TEAM_COR_01\" Organisation=\"COR\">\n                <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                <Composition>\n                    <Athlete Code=\"TEAM_COR_01_1\" Order=\"1\" Bib=\"401\">\n                        <Description GivenName=\"gnTEAM_COR_01_1\" FamilyName=\"fnTEAM_COR_01_1\" Organisation=\"COR\" Gender=\"W\" BirthDate=\"1999-01-01\"/>\n                    </Athlete>\n                    <Athlete Code=\"TEAM_COR_01_2\" Order=\"2\" Bib=\"402\">\n                        <Description GivenName=\"gnTEAM_COR_01_2\" FamilyName=\"fnTEAM_COR_01_2\" Organisation=\"COR\" Gender=\"W\" BirthDate=\"1999-01-01\"/>\n                    </Athlete>\n                    <Athlete Code=\"TEAM_COR_01_3\" Order=\"3\" Bib=\"403\">\n                        <Description GivenName=\"gnTEAM_COR_01_3\" FamilyName=\"fnTEAM_COR_01_3\" Organisation=\"COR\" Gender=\"W\" BirthDate=\"1999-01-01\"/>\n                    </Athlete>\n                    <Athlete Code=\"TEAM_COR_01_4\" Order=\"4\" Bib=\"404\">\n                        <Description GivenName=\"gnTEAM_COR_01_4\" FamilyName=\"fnTEAM_COR_01_4\" Organisation=\"COR\" Gender=\"W\" BirthDate=\"1999-01-01\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"2\" RankEqual=\"\" Result=\"41.66\" IRM=\"\" SortOrder=\"5\" StartOrder=\"5\" StartSortOrder=\"5\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"0.37\"/>\n            </ExtendedResults>\n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHW4X100M------------------------\" RecordType=\"AR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"T\" Code=\"TEAM_CHN_01\" Organisation=\"CHN\">\n                <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                <Composition>\n                    <Athlete Code=\"TEAM_CHN_01_1\" Order=\"1\" Bib=\"200\">\n                        <Description GivenName=\"gnTEAM_CHN_01_1\" FamilyName=\"fnTEAM_CHN_01_1\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1999-01-01\"/>\n                    </Athlete>\n                    <Athlete Code=\"TEAM_CHN_01_2\" Order=\"2\" Bib=\"201\">\n                        <Description GivenName=\"gnTEAM_CHN_01_2\" FamilyName=\"fnTEAM_CHN_01_2\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1999-01-01\"/>\n                    </Athlete>\n                    <Athlete Code=\"TEAM_CHN_01_3\" Order=\"3\" Bib=\"202\">\n                        <Description GivenName=\"gnTEAM_CHN_01_3\" FamilyName=\"fnTEAM_CHN_01_3\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1999-01-01\"/>\n                    </Athlete>\n                    <Athlete Code=\"TEAM_CHN_01_4\" Order=\"4\" Bib=\"203\">\n                        <Description GivenName=\"gnTEAM_CHN_01_4\" FamilyName=\"fnTEAM_CHN_01_4\" Organisation=\"CHN\" Gender=\"W\" BirthDate=\"1999-01-01\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"3\" RankEqual=\"\" Result=\"43.96\" IRM=\"\" SortOrder=\"7\" StartOrder=\"7\" StartSortOrder=\"7\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"0.33\"/>\n            </ExtendedResults>\n            <Competitor Type=\"T\" Code=\"TEAM_CAN_01\" Organisation=\"CAN\">\n                <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                <Composition>\n                    <Athlete Code=\"TEAM_CAN_01_1\" Order=\"1\" Bib=\"301\">\n                        <Description GivenName=\"gnTEAM_CAN_01_1\" FamilyName=\"fnTEAM_CAN_01_1\" Organisation=\"CAN\" Gender=\"W\" BirthDate=\"1999-01-01\"/>\n                    </Athlete>\n                    <Athlete Code=\"TEAM_CAN_01_2\" Order=\"2\" Bib=\"302\">\n                        <Description GivenName=\"gnTEAM_CAN_01_2\" FamilyName=\"fnTEAM_CAN_01_2\" Organisation=\"CAN\" Gender=\"W\" BirthDate=\"1999-01-01\"/>\n                    </Athlete>\n                    <Athlete Code=\"TEAM_CAN_01_3\" Order=\"3\" Bib=\"303\">\n                        <Description GivenName=\"gnTEAM_CAN_01_3\" FamilyName=\"fnTEAM_CAN_01_3\" Organisation=\"CAN\" Gender=\"W\" BirthDate=\"1999-01-01\"/>\n                    </Athlete>\n                    <Athlete Code=\"TEAM_CAN_01_4\" Order=\"4\" Bib=\"304\">\n                        <Description GivenName=\"gnTEAM_CAN_01_4\" FamilyName=\"fnTEAM_CAN_01_4\" Organisation=\"CAN\" Gender=\"W\" BirthDate=\"1999-01-01\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n    </Competition>\n</OdfBody>\n",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PHASE_RESULT_女子跳远",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "3154f353-5aae-4759-8220-44703f581ef3",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "06d0ebbe-e18b-4566-8e11-8a47129e7af6",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATHWLONGJUMP----------FNL---------\" DocumentType=\"DT_PHASE_RESULT\" ResultStatus=\"OFFICIAL\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-04-28\" Time=\"13:33:06\" LogicalDate=\"2020-04-28\" Source=\"ATH_OVR\">\n    <Competition>\n        <ExtendedInfos>\n            <UnitDateTime StartDate=\"2020-04-29T15:00:00\"/>\n            <SportDescription DisciplineName=\"\" EventName=\"女子组跳远\" Gender=\"W\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\" Venue=\"\" Location=\"\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"WIND_SPEED\" Value=\"\"/>\n        </ExtendedInfos>\n        <Result Rank=\"1\" RankEqual=\"\" Result=\"6.52\" IRM=\"\" SortOrder=\"4\" StartOrder=\"4\" StartSortOrder=\"4\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"BEST_ATTEMPT_NUM\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"WIND_SPEED\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"6.52\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"+0.5\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"6.21\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"-0.3\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"6.35\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"+0.4\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"X\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"r\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHWLONGJUMP----------------------\" RecordType=\"WR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"ANG\">\n                <Composition>\n                    <Athlete Code=\"ANG_test_code_01\" Order=\"1\" Bib=\"2\">\n                        <Description GivenName=\"ANG_gn名01\" FamilyName=\"ANG姓n01\" Organisation=\"ANG\" Gender=\"W\" BirthDate=\"1999-12-25\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"2\" RankEqual=\"\" Result=\"6.24\" IRM=\"\" SortOrder=\"1\" StartOrder=\"1\" StartSortOrder=\"1\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"BEST_ATTEMPT_NUM\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"WIND_SPEED\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"6.01\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"+0.2\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"5.76\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"-0.3\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"5.87\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"0.0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"6.24\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"+0.5\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"6.22\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"-0.6\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"5.98\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"-0.4\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHWLONGJUMP----------------------\" RecordType=\"AR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"AUT\">\n                <Composition>\n                    <Athlete Code=\"AUT_test_code_01\" Order=\"2\" Bib=\"6\">\n                        <Description GivenName=\"AUT_gn名01\" FamilyName=\"AUT姓n01\" Organisation=\"AUT\" Gender=\"W\" BirthDate=\"1999-12-25\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"3\" RankEqual=\"\" Result=\"6.21\" IRM=\"\" SortOrder=\"2\" StartOrder=\"2\" StartSortOrder=\"2\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"BEST_ATTEMPT_NUM\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"WIND_SPEED\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"X\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"X\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"6.21\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"+0.5\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"5.99\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"0.0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"6.00\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"-0.6\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"6.02\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"+0.3\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHWLONGJUMP----------------------\" RecordType=\"AR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"AUS\">\n                <Composition>\n                    <Athlete Code=\"AUS_test_code_01\" Order=\"3\" Bib=\"5\">\n                        <Description GivenName=\"AUS_gn名01\" FamilyName=\"AUS姓n01\" Organisation=\"AUS\" Gender=\"W\" BirthDate=\"1999-12-25\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"NM\" IRM=\"\" SortOrder=\"3\" StartOrder=\"3\" StartSortOrder=\"3\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"BEST_ATTEMPT_NUM\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"WIND_SPEED\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"X\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"X\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"X\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"ARG\">\n                <Composition>\n                    <Athlete Code=\"ARG_test_code_01\" Order=\"4\" Bib=\"3\">\n                        <Description GivenName=\"ARG_gn名01\" FamilyName=\"ARG姓n01\" Organisation=\"ARG\" Gender=\"W\" BirthDate=\"1999-12-25\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n    </Competition>\n</OdfBody>\n",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "RANKING_男子110米栏",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "b541cdb5-0f96-490a-b4ec-1ef80cdb8ada",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "57e9608d-2d14-495b-b81e-ae52e048ec2b",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATHM110MHURD----------------------\" DocumentType=\"DT_RANKING\" ResultStatus=\"OFFICIAL\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-04-24\" Time=\"10:59:07\" LogicalDate=\"2020-04-24\" Source=\"ATH_OVR\">\n    <Competition>\n        <ExtendedInfos>\n            <UnitDateTime StartDate=\"2020-04-24T15:00:00\"/>\n            <SportDescription DisciplineName=\"\" EventName=\"男子组110米栏\" Gender=\"M\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\" Venue=\"\" Location=\"\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"WIND_SPEED\" Value=\"+0.6\"/>\n        </ExtendedInfos>\n        <Result Rank=\"1\" RankEqual=\"\" Result=\"14.35\" IRM=\"\" SortOrder=\"8\" StartOrder=\"8\" StartSortOrder=\"8\" ResultType=\"TIME\" QualificationMark=\"q\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BAH\">\n                <Composition>\n                    <Athlete Code=\"BAH01\" Order=\"1\" Bib=\"109\">\n                        <Description GivenName=\"BAH01\" FamilyName=\"BAHF01\" Organisation=\"BAH\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"2\" RankEqual=\"\" Result=\"14.54\" IRM=\"\" SortOrder=\"7\" StartOrder=\"7\" StartSortOrder=\"7\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BEL\">\n                <Composition>\n                    <Athlete Code=\"BEL01\" Order=\"2\" Bib=\"108\">\n                        <Description GivenName=\"BEL01\" FamilyName=\"BELF01\" Organisation=\"BEL\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"3\" RankEqual=\"\" Result=\"14.65\" IRM=\"\" SortOrder=\"2\" StartOrder=\"2\" StartSortOrder=\"2\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BIH\">\n                <Composition>\n                    <Athlete Code=\"BIH01\" Order=\"3\" Bib=\"111\">\n                        <Description GivenName=\"BIH01\" FamilyName=\"BIHF01\" Organisation=\"BIH\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"4\" RankEqual=\"\" Result=\"15.27\" IRM=\"\" SortOrder=\"3\" StartOrder=\"3\" StartSortOrder=\"3\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"ARG\">\n                <Composition>\n                    <Athlete Code=\"ARG01\" Order=\"4\" Bib=\"105\">\n                        <Description GivenName=\"ARG01\" FamilyName=\"ARGF01\" Organisation=\"ARG\" Gender=\"M\" BirthDate=\"1992-01-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"\" IRM=\"DNS\" SortOrder=\"5\" StartOrder=\"5\" StartSortOrder=\"5\" ResultType=\"TIME\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"REACT_TIME\" Pos=\"1\" Value=\"\"/>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"BHU\">\n                <Composition>\n                    <Athlete Code=\"BHU01\" Order=\"5\" Bib=\"110\">\n                        <Description GivenName=\"BHU01\" FamilyName=\"BHUF01\" Organisation=\"BHU\" Gender=\"M\" BirthDate=\"1992-11-01\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n    </Competition>\n</OdfBody>\n",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "RANKING_女子跳远",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "5687eafb-ef3e-45f0-9976-783843867702",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "3179043f-930e-414e-88a0-a99456e2eb17",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "msg",
+											"value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<OdfBody CompetitionCode=\"JINJIANG2020\" DocumentCode=\"ATHWLONGJUMP----------------------\" DocumentType=\"DT_RANKING\" ResultStatus=\"OFFICIAL\" Version=\"1\" FeedFlag=\"P\" Date=\"2020-04-28\" Time=\"13:33:29\" LogicalDate=\"2020-04-28\" Source=\"ATH_OVR\">\n    <Competition>\n        <ExtendedInfos>\n            <UnitDateTime StartDate=\"2020-04-29T15:00:00\"/>\n            <SportDescription DisciplineName=\"\" EventName=\"女子组跳远\" Gender=\"W\"/>\n            <VenueDescription VenueName=\"\" LocationName=\"\" Venue=\"\" Location=\"\"/>\n            <ExtendedInfo Type=\"UI\" Code=\"WIND_SPEED\" Value=\"\"/>\n        </ExtendedInfos>\n        <Result Rank=\"1\" RankEqual=\"\" Result=\"6.52\" IRM=\"\" SortOrder=\"4\" StartOrder=\"4\" StartSortOrder=\"4\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"BEST_ATTEMPT_NUM\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"WIND_SPEED\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"6.52\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"+0.5\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"6.21\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"-0.3\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"6.35\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"+0.4\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"X\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"r\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHWLONGJUMP----------------------\" RecordType=\"WR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"ANG\">\n                <Composition>\n                    <Athlete Code=\"ANG_test_code_01\" Order=\"1\" Bib=\"2\">\n                        <Description GivenName=\"ANG_gn名01\" FamilyName=\"ANG姓n01\" Organisation=\"ANG\" Gender=\"W\" BirthDate=\"1999-12-25\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"2\" RankEqual=\"\" Result=\"6.24\" IRM=\"\" SortOrder=\"1\" StartOrder=\"1\" StartSortOrder=\"1\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"BEST_ATTEMPT_NUM\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"WIND_SPEED\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"6.01\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"+0.2\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"5.76\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"-0.3\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"5.87\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"0.0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"6.24\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"+0.5\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"6.22\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"-0.6\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"5.98\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"-0.4\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHWLONGJUMP----------------------\" RecordType=\"AR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"AUT\">\n                <Composition>\n                    <Athlete Code=\"AUT_test_code_01\" Order=\"2\" Bib=\"6\">\n                        <Description GivenName=\"AUT_gn名01\" FamilyName=\"AUT姓n01\" Organisation=\"AUT\" Gender=\"W\" BirthDate=\"1999-12-25\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"3\" RankEqual=\"\" Result=\"6.21\" IRM=\"\" SortOrder=\"2\" StartOrder=\"2\" StartSortOrder=\"2\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"BEST_ATTEMPT_NUM\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"WIND_SPEED\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"X\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"X\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"6.21\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"+0.5\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"4\" Value=\"5.99\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"0.0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"5\" Value=\"6.00\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"-0.6\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"6\" Value=\"6.02\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"+0.3\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <RecordIndicators>\n                <RecordIndicator Order=\"1\" Code=\"ATHWLONGJUMP----------------------\" RecordType=\"AR\"/>\n            </RecordIndicators>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"AUS\">\n                <Composition>\n                    <Athlete Code=\"AUS_test_code_01\" Order=\"3\" Bib=\"5\">\n                        <Description GivenName=\"AUS_gn名01\" FamilyName=\"AUS姓n01\" Organisation=\"AUS\" Gender=\"W\" BirthDate=\"1999-12-25\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n        <Result Rank=\"\" RankEqual=\"\" Result=\"NM\" IRM=\"\" SortOrder=\"3\" StartOrder=\"3\" StartSortOrder=\"3\" ResultType=\"DISTANCE\" QualificationMark=\"\" Diff=\"\">\n            <ExtendedResults>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"ORDER_CURRENT\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"BEST_ATTEMPT_NUM\" Value=\"1\"/>\n                <ExtendedResult Type=\"ER\" Code=\"WIND_SPEED\" Value=\"\"/>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"1\" Value=\"X\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"2\" Value=\"X\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n                <ExtendedResult Type=\"ER\" Code=\"INTERMEDIATE\" Pos=\"3\" Value=\"X\">\n                    <Extension Code=\"WIND_SPEED\" Value=\"\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_SORT_ORDER\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_INTERMEDIATE_RANK\" Value=\"0\"/>\n                    <Extension Code=\"AFTER_ATTEMPT_BEST\" Value=\"\"/>\n                </ExtendedResult>\n            </ExtendedResults>\n            <Competitor Type=\"A\" Code=\"\" Organisation=\"ARG\">\n                <Composition>\n                    <Athlete Code=\"ARG_test_code_01\" Order=\"4\" Bib=\"3\">\n                        <Description GivenName=\"ARG_gn名01\" FamilyName=\"ARG姓n01\" Organisation=\"ARG\" Gender=\"W\" BirthDate=\"1999-12-25\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"PB\" Value=\"\"/>\n                        <EventUnitEntry Type=\"EUE\" Code=\"SB\" Value=\"\"/>\n                    </Athlete>\n                </Composition>\n            </Competitor>\n        </Result>\n    </Competition>\n</OdfBody>\n",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "{{ipAddr}}/dc/odf/msg/{{source}}/ODFClient",
+									"host": [
+										"{{ipAddr}}"
+									],
+									"path": [
+										"dc",
+										"odf",
+										"msg",
+										"{{source}}",
+										"ODFClient"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "e5fb1506-fbf5-4ffc-9a3f-e5c55d4c3e1a",
+						"type": "text/javascript",
+						"exec": [
+							"postman.setGlobalVariable(\"source\", \"ATH_OVR\");"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "d5ed3ef9-5b32-48f8-9bfe-baeee67cc23a",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"response is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(200).to.eql(jsonData.code);",
+							"    pm.expect(\"OK\").to.eql(jsonData.message);",
+							"    pm.expect(\"true\").to.eql(jsonData.data);",
+							"});"
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "9b294a6e-be2f-443f-bc25-a82e6700b24f",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "5fdbe2e3-c5e3-43e5-85c1-b0690d5c872e",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
